@@ -14,6 +14,8 @@ colnames(nfl)
 #Get Eagles/Chiefs Stats
 eagles_stats <- nfl %>% filter(nfl$Team_games == "Eagles")
 chiefs_stats <- nfl %>% filter(nfl$Team_games == "Chiefs")
+
+nfl <- nfl%>% left_join(avg_opponent_ranking, by = c("Team_games" = "Team_games"))
 #Utilize average rankings based on strength of opponent
 avg_opponent_ranking <- nfl %>% group_by(Team_games) %>% summarize(avg_opponet_ranking = mean(opponent_rank, na.rm = TRUE)
 )
