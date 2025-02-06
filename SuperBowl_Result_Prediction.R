@@ -26,7 +26,17 @@ adjusted_ranks
 view(adjusted_ranks)
 
 #Find averages of the teams by their stats
-team_avg <- rank_adjusted %>% group_by(Team_games) %>% summarise( average_adjusted_passing_yards = mean(adjusted_passing__yards, na.rm = TRUE) / 10, average_adjusted_passing_tds = mean(adjusted_passing_tds, na.rm = TRUE) / 10, average_adjusted_rushing_yards = mean(adjusted_rushing_yards, na.rm = TRUE) / 10, average_adjusted_rushing_tds = mean(adjusted_rushing_tds, na.rm = TRUE) / 10, average_adjusted_pass_yard_allowed = mean(adjusted_pass_yard_allowed, na.rm = TRUE) / 10, average_adjusted_pass_td_allowed = mean(adjusted_pass_td_allowed, na.rm = TRUE) / 10, average_adjusted_rush_yard_allowed = mean(adjusted_rush_yard_allowed, na.rm = TRUE) / 10, average_adjusted_rush_td_allowed = mean(adjusted_rush_td_allowed, na.rm = TRUE) / 10, average_adjusted_pass_ints = mean(adjusted_passing_ints / 10))
+team_avg <- adjusted_ranks %>% group_by(Team_games) %>% 
+summarise( 
+average_adjusted_passing_yards = mean(adjusted_passing__yards, na.rm = TRUE) / 10, 
+average_adjusted_passing_tds = mean(adjusted_passing_tds, na.rm = TRUE) / 10, 
+average_adjusted_rushing_yards = mean(adjusted_rushing_yards, na.rm = TRUE) / 10, 
+average_adjusted_rushing_tds = mean(adjusted_rushing_tds, na.rm = TRUE) / 10, 
+average_adjusted_pass_yard_allowed = mean(adjusted_pass_yard_allowed, na.rm = TRUE) / 10, 
+average_adjusted_pass_td_allowed = mean(adjusted_pass_td_allowed, na.rm = TRUE) / 10,
+average_adjusted_rush_yard_allowed = mean(adjusted_rush_yard_allowed, na.rm = TRUE) / 10, 
+average_adjusted_rush_td_allowed = mean(adjusted_rush_td_allowed, na.rm = TRUE) / 10, 
+average_adjusted_passing_ints = mean(adjusted_passing_ints, na.rm = TRUE  ) / 10)
 
 #create the model that will compare each team vs the other
 model <- glm(adjusted_points_for ~ adjusted_passing__yards + adjusted_rushing_yards + adjusted_passing_tds + adjusted_rushing_tds - adjusted_passing_ints / (adjusted_pass_yard_allowed + adjusted_pass_td_allowed + adjusted_rush_yard_allowed + adjusted_rush_td_allowed), data = adjusted_ranks)
@@ -41,15 +51,21 @@ adjusted_pass_yard_allowed = team_avg$average_adjusted_pass_yard_allowed,
 adjusted_pass_td_allowed = team_avg$average_adjusted_pass_td_allowed,
 adjusted_rush_yard_allowed = team_avg$average_adjusted_rush_yard_allowed,
 adjusted_rush_td_allowed = team_avg$average_adjusted_rush_td_allowed, 
-adjusted_passing_ints = team_avg$average_adjusted_pass_ints
+adjusted_passing_ints = team_avg$average_adjusted_passing_ints
 )
 view(game)
 game <- game %>% rename(adjusted_pass_ints = adjusted_passing_ints)
+game1 <- game %>% mutate(team_avg$Team_games)
+game1 <- game1 %>% rename(Teams = 'team_avg$Team_games')
 #Find the game stats for each team specifically
 game_eagles <- subset(game1, Teams == "Eagles")
 game_eagles
 game_chiefs <- subset(game1, Teams == "Chiefs")
 game_chiefs
+
+game_eagles <- game_eagles %>% rename(adjusted_passing_ints = 'adjusted_pass_ints')
+game_chiefs <- game_chiefs %>% rename(adjusted_passing_ints = 'adjusted_pass_ints')
+
 #Generate a prediction using the predict() function
 predict_eagles <- predict(model, newdata = game_eagles )
 predict_chiefs <- predict(model, newdata = game_chiefs)
